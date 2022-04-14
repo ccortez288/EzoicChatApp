@@ -3,6 +3,7 @@
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
 
+CLIENT_NAMES = []
 """
 This function accepts incoming connection then prompts for a name. 
 It also launches another thread for asynch processsing. THe other thread
@@ -27,6 +28,16 @@ def handle_client(client):
     name = client.recv(BUFSIZ).decode("utf8")
     welcome = 'Welcome %s! Type {quit} to exit.' % name
     client.send(bytes(welcome, "utf8"))
+    if len(CLIENT_NAMES) == 1:
+        s = str(CLIENT_NAMES[0]) + ' is also in the chat.'
+        client.send(bytes(s, "utf8"))
+    if len(CLIENT_NAMES) > 1:
+        s = ', '.join(CLIENT_NAMES) + ' are also in the chat.'
+        client.send(bytes(s, "utf8"))
+
+    CLIENT_NAMES.append(name)
+
+
     msg = "%s joined the chat!" % name
     share_msg(bytes(msg, "utf8"))
     clients[client] = name
@@ -36,10 +47,11 @@ def handle_client(client):
         if msg != bytes("{quit}", "utf8"):
             share_msg(msg, name + ": ")
         else:
+            CLIENT_NAMES.remove(name)
             client.send(bytes("{quit}", "utf8"))
             client.close()
             del clients[client]
-            share_msg(bytes("%s left the chat." % name, "utf8"))
+            share_msg(bytes("%s  left the chat." % name, "utf8"))
             break
 
 """

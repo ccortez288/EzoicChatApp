@@ -1,4 +1,7 @@
 """Script for Tkinter GUI chat client."""
+import socket
+HOST = socket.gethostbyname(socket.gethostname())
+print(HOST)
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
 import tkinter
@@ -10,7 +13,6 @@ This section handles all of the sending and receiving protocols
 """
 
 def receive():
-    """Handles receiving of messages."""
     while True:
         try:
             msg = client_socket.recv(BUFSIZ).decode("utf8")
@@ -19,20 +21,25 @@ def receive():
             break
 
 
-def send(event=None):  # event is passed by binders.
-    """Handles sending of messages."""
+def send(event=None):
     msg = my_msg.get()
     my_msg.set("")  # Clears input field.
     client_socket.send(bytes(msg, "utf8"))
     if msg == "{quit}":
+        client_socket.send(bytes(msg, "utf8"))
         client_socket.close()
         chat_gui.quit()
 
 
 def on_closing(event=None):
-    """This function is to be called when the window is closed."""
     my_msg.set("{quit}")
-    send()
+    msg = my_msg.get()
+    client_socket.send(bytes(msg, "utf8"))
+    if msg == "{quit}":
+        client_socket.send(bytes(msg, "utf8"))
+        client_socket.close()
+        chat_gui.quit()
+
 """
 This section is where the GUI is initialized 
 """
@@ -78,7 +85,7 @@ This section contains the connection to the websocket, and launches another thre
 messages on. Here is where the eventloop for the GUI is launched as well. Home IP is set as default. 
 Chat app only works on local machine with two different instances launched. 
 """
-HOST = '127.0.0.1'
+
 PORT = 33000
 BUFSIZ = 1024
 ADDR = (HOST, PORT)
