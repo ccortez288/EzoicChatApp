@@ -77,7 +77,7 @@ chat_gui.protocol("WM_DELETE_WINDOW", on_closing)
 This section contains the connection to the websocket, and launches another thread to receive
 messages on. Here is where the eventloop for the GUI is launched as well. Home IP is set as default. 
 Chat app only works on local machine with two different instances launched. 
-""" 
+"""
 HOST = '127.0.0.1'
 PORT = 33000
 BUFSIZ = 1024
